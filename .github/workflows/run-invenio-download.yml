@@ -1,0 +1,48 @@
+name: Download Invenio Records (Auto Commit)
+
+on:
+  workflow_dispatch:  # manual trigger
+  schedule:
+    - cron: "0 6 * * 1"  # every Monday at 06:00 UTC (change if you want)
+
+jobs:
+  run-download:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write  # REQUIRED to push commits
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run download script
+        run: |
+          python list-invenio-records.py
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add data/
+          
+          # Only commit if something changed
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update Invenio records ($(date -u +"%Y-%m-%d"))"
+            git push
+          fi

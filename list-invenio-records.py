@@ -18,6 +18,16 @@ def extract_identifier(identifiers, scheme):
             return i.get("identifier")
     return ""
 
+def format_creators(creators):
+    names = []
+    for c in creators or []:
+        person = c.get("person_or_org", {})
+        name = person.get("name")
+        if name:
+            names.append(name)
+    return " and ".join(names)
+
+
 all_records = []
 page = 1
 
@@ -49,11 +59,7 @@ while True:
             "Title": metadata.get("title"),
             "PublicationDate": metadata.get("publication_date"),
 
-
-            "Authors": ", ".join(
-                c["person_or_org"].get("name", "")
-                for c in metadata.get("creators", [])
-            ),
+            "Authors": format_creators(metadata.get("creators")),
             
             "ARCURL": extract_identifier(identifiers, "url")
 

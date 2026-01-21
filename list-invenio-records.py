@@ -10,6 +10,7 @@ TODAY = datetime.datetime.now().strftime("%Y-%m-%d")
 OUT_DIR = Path("data")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 OUT_XLSX = OUT_DIR / f"{TODAY}_invenio-records.xlsx"
+OUT_CSV = OUT_DIR / f"{TODAY}_invenio-records.csv"
 
 def extract_identifier(identifiers, scheme):
     for i in identifiers or []:
@@ -63,6 +64,7 @@ while True:
 df = pd.DataFrame(all_records)
 
 df.to_excel(OUT_XLSX, index=False)
+df.to_csv(OUT_CSV, index=False)
 
-print(f"Saved {len(df)} records to {OUT_XLSX}")
+print(f"Saved {len(df)} records to {OUT_XLSX} and {OUT_CSV}")
 

@@ -27,6 +27,20 @@ def format_creators(creators):
             names.append(name)
     return " and ".join(names)
 
+def format_communities(rec):
+    communities = (
+        rec.get("parent", {})
+           .get("communities", {})
+           .get("entries", [])
+    )
+
+    return "; ".join(
+        c.get("metadata", {}).get("title")
+        or c.get("slug")
+        or c.get("id")
+        for c in communities
+    )
+
 
 all_records = []
 page = 1
@@ -60,9 +74,10 @@ while True:
             "PublicationDate": metadata.get("publication_date"),
 
             "Authors": format_creators(metadata.get("creators")),
-            
-            "ARCURL": extract_identifier(identifiers, "url")
 
+            "ARCURL": extract_identifier(identifiers, "url"),
+
+            "Communities": format_communities(rec)
         })
 
     page += 1
@@ -73,4 +88,5 @@ df.to_excel(OUT_XLSX, index=False)
 df.to_csv(OUT_CSV, index=False)
 
 print(f"Saved {len(df)} records to {OUT_XLSX} and {OUT_CSV}")
+
 
